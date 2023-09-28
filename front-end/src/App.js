@@ -5,14 +5,18 @@ import MessageStandalone from './MessageStandalone'
 import Home from './Home'
 import Header from './Header'
 import Footer from './Footer'
+import About from './About'
 
-const App = props => {
+const App = () => {
   return (
     <div className="App">
       <Router>
         <Header />
         <main className="App-main">
           <Routes>
+            {/* a route for the about me page */}
+            <Route path="/about" element={<About />} />
+
             {/* a route for the home page */}
             <Route path="/" element={<Home />} />
 
