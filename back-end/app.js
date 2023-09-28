@@ -6,11 +6,17 @@ const mongoose = require('mongoose')
 
 const app = express() // instantiate an Express object
 app.use(morgan('dev', { skip: (req, res) => process.env.NODE_ENV === 'test' })) // log all incoming requests, except when in unit test mode.  morgan has a few logging default styles - dev is a nice concise color-coded style
-app.use(cors()) // allow cross-origin resource sharing
+//app.use(cors()) // allow cross-origin resource sharing
+app.use(cors({
+  origin: 'http://localhost:7002'
+}))
+
 
 // use express's builtin body-parser middleware to parse any data included in a request
 app.use(express.json()) // decode JSON-formatted incoming POST data
 app.use(express.urlencoded({ extended: true })) // decode url-encoded incoming POST data
+app.use('/static', express.static('front-end'));
+
 
 // connect to database
 mongoose
@@ -21,6 +27,28 @@ mongoose
 // load the dataabase models we want to deal with
 const { Message } = require('./models/Message')
 const { User } = require('./models/User')
+
+app.get('/about', (req, res) => {
+  try{
+    res.json({
+      title: "About Us",
+      paragraphs: [
+          "Greetings! I'm Lesley Zhao, a senior at New York University majoring in Data Science and Computer Science with a minor in Web Development. I've interned as a Backend Developer at IvorySquare, automated API designs, enhanced database operations, and supported the NYU IT Department.",
+          "  ",
+          "My experiences range from data analytics at Spark44 in Shanghai and the Bank of China in Tianjin to maintaining an impressive GPA of 3.963. Skilled in Python, Java, and R, I excel with tools like Tableau and have a passion for using data to drive insights, showcased in my diverse projects, including an NYU library app and a classical music education website. Let's connect!",
+      ],
+      imageUrl: "http://localhost:7002/IMG_8306.JPG"
+    });
+  }
+  catch(error){
+    console.error(err)
+    res.status(400).json({
+      error: err,
+      status: 'failed to retrieve data',
+    })
+  }
+  
+});
 
 // a route to handle fetching all messages
 app.get('/messages', async (req, res) => {
@@ -57,6 +85,7 @@ app.get('/messages/:messageId', async (req, res) => {
     })
   }
 })
+
 // a route to handle logging out users
 app.post('/messages/save', async (req, res) => {
   // try to save the message to the database
@@ -80,3 +109,4 @@ app.post('/messages/save', async (req, res) => {
 
 // export the express app we created to make it available to other modules
 module.exports = app // CommonJS export style!
+
